@@ -74,7 +74,7 @@ class XOCom:
     # and return any value received from the javascript
     def send_to_browser(self, command, parameter=None):
         if((command == "read") and (parameter is not None)):
-            self.web_view.load_uri("javascript:XO.observer.setSheet('"+parameter.replace('\\n','DECNEWLINE').replace('\n','NEWLINE').replace("'","\\'")+"');void(0);")
+            self.web_view.load_uri("javascript:XO.observer.setSheet('"+parameter.replace('\\n','DECNEWLINE').replace('\n','NEWLINE').replace("\\","B_SLASH").replace("'","\\'")+"');void(0);")
             return
 
         # Set up an array for parameters and return values for the XPCom call

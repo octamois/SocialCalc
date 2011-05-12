@@ -377,6 +377,7 @@ def add_localized_strings():
    
    localized_strings['s_loc_plain']=_("Plain")
    localized_strings['s_loc_graph']=_("Graph")
+   localized_strings['s_loc_display_over_edit']=_("Also show in Edit")
    localized_strings['s_loc_cells_to_graph']=_("Cells to Graph")
    localized_strings['s_loc_set_cells_to_graph']=_("Set Cells To Graph")
    localized_strings['s_loc_graph_type']=_("Graph Type")
