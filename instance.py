@@ -1,8 +1,6 @@
 import os
 
-from sugar import profile
-from sugar import util
-from sugar.activity import activity
+from sugar3 import profile
 import shutil
 
 

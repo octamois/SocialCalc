@@ -1,7 +1,7 @@
 [Activity]
 name = SocialCalcActivity
-service_name = com.socialtext.SocialCalcActivity
-class = SocialCalcActivity.SocialCalcActivity
+bundle_id = com.socialtext.SocialCalcActivity
+exec = sugar-activity SocialCalcActivity.SocialCalcActivity
 icon = activity-socialcalc
 activity_version = 6
 show_launcher = Yes

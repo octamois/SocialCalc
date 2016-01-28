@@ -3,9 +3,9 @@ from threading import *
 from logic import ServerLogic
 from server import Server
 from instance import Instance
-from sugar.activity.activity import get_bundle_path
-from hulahop.webview import WebView
-from xpcom import components
+from sugar3.activity.activity import get_bundle_path
+from gi.repository.WebKit import WebView
+#from xpcom import components
 from localized_strings_file import localized_strings
 
 class XOCom:
@@ -38,14 +38,15 @@ class XOCom:
     # Note: Not all of these preferences may be required - requires further
     #       investigation
     def give_full_xpcom_access(self):
-        pref_class = components.classes["@mozilla.org/preferences-service;1"]
+        pass
+        '''pref_class = components.classes["@mozilla.org/preferences-service;1"]
         prefs = pref_class.getService(components.interfaces.nsIPrefService)
         prefs.getBranch('signed.applets.').setBoolPref('codebase_principal_support',
                 True);
         prefs.getBranch('capability.principal.').setCharPref(
                         'socialcalc.granted', 'UniversalXPConnect')
         prefs.getBranch('capability.principal.').setCharPref(
-                        'socialcalc.id', self.uri)
+                        'socialcalc.id', self.uri)'''
 
     # Wrapper method to create a new webview embedded browser component
     # Uses hulahop's WebView.  Assumes that you'll want to serve
@@ -60,10 +61,10 @@ class XOCom:
     def set_observer(self):
         #try:
             print 'enter: set_observer'
-            observerService = components.classes["@mozilla.org/observer-service;1"]
+            '''observerService = components.classes["@mozilla.org/observer-service;1"]
             ob_serv = observerService.getService(components.interfaces.nsIObserverService);
             observer=Observer(self.control_sending_text)
-            ob_serv.addObserver(observer,"xo-message2",False);
+            ob_serv.addObserver(observer,"xo-message2",False);'''
             print 'exit: set_observer'
         #except:
             #print 'error is there, remove try and except thing'
@@ -78,45 +79,47 @@ class XOCom:
             return
 
         # Set up an array for parameters and return values for the XPCom call
-        array = components.classes["@mozilla.org/array;1"].createInstance(
-                components.interfaces.nsIMutableArray)
+        #array = components.classes["@mozilla.org/array;1"].createInstance(
+        #        components.interfaces.nsIMutableArray)
      
         # Optionally pass data to the javascript
         if parameter: 
-            str = components.classes["@mozilla.org/supports-string;1"].createInstance(
-                        components.interfaces.nsISupportsString)
-            str.data = parameter
-            array.appendElement(str, False)
+            pass
+            #str = components.classes["@mozilla.org/supports-string;1"].createInstance(
+            #            components.interfaces.nsISupportsString)
+            #str.data = parameter
+            #array.appendElement(str, False)
 
         # Use XPCom to send an event to a javascript observer (web/xo.js)
-        observerService = components.classes["@mozilla.org/observer-service;1"]
-        ob_serv = observerService.getService(components.interfaces.nsIObserverService)
-        ob_serv.notifyObservers(array, "xo-message", command)
+        #observerService = components.classes["@mozilla.org/observer-service;1"]
+        #ob_serv = observerService.getService(components.interfaces.nsIObserverService)
+        #ob_serv.notifyObservers(array, "xo-message", command)
         #ob_serv.addObserver(self.control_sending_text,"xo-message2",False)
 
         # check if the browser returned anything
-        if array.length:
+        '''if array.length:
             iter = array.enumerate()
             result = iter.getNext()
-            result = result.QueryInterface(components.interfaces.nsISupportsString)
-            return result.toString()
+            #result = result.QueryInterface(components.interfaces.nsISupportsString)
+            return result.toString()'''
         return None
     
     def send_to_browser_shared(self,command):
         if command[0]=='execute':
-            array = components.classes["@mozilla.org/array;1"].createInstance(components.interfaces.nsIMutableArray)
-            str = components.classes["@mozilla.org/supports-string;1"].createInstance(components.interfaces.nsISupportsString)
-            str.data = command[1]
-            array.appendElement(str, False)
-            str2 = components.classes["@mozilla.org/supports-string;1"].createInstance(components.interfaces.nsISupportsString)
-            str2.data = command[2]
-            array.appendElement(str2, False)
+            pass
+            #array = components.classes["@mozilla.org/array;1"].createInstance(components.interfaces.nsIMutableArray)
+            #str = components.classes["@mozilla.org/supports-string;1"].createInstance(components.interfaces.nsISupportsString)
+            #str.data = command[1]
+            #array.appendElement(str, False)
+            #str2 = components.classes["@mozilla.org/supports-string;1"].createInstance(components.interfaces.nsISupportsString)
+            #str2.data = command[2]
+            #array.appendElement(str2, False)
             
-            observerService = components.classes["@mozilla.org/observer-service;1"]
-            ob_serv = observerService.getService(components.interfaces.nsIObserverService);
-            if not array.length: 
-                print 'no need of sending anywhere , array is empty'
-            ob_serv.notifyObservers(array, "xo-message", 'execute');
+            #observerService = components.classes["@mozilla.org/observer-service;1"]
+            #ob_serv = observerService.getService(components.interfaces.nsIObserverService);
+            #if not array.length: 
+            #    print 'no need of sending anywhere , array is empty'
+            #ob_serv.notifyObservers(array, "xo-message", 'execute');
 
     def send_to_browser_localize(self,command):
         #self.ajaxServer.closing = 1
@@ -135,21 +138,21 @@ class XOCom:
         self.web_view.load_uri(localstr)
         return
 
-        observerService = components.classes["@mozilla.org/observer-service;1"]
-        ob_serv = observerService.getService(components.interfaces.nsIObserverService);
-        if not array.length: 
-           print 'no need of sending anywhere , array is empty'
-        ob_serv.notifyObservers(array, "xo-message3", 'initlocalize');
+        #observerService = components.classes["@mozilla.org/observer-service;1"]
+        #ob_serv = observerService.getService(components.interfaces.nsIObserverService);
+        #if not array.length: 
+        #   print 'no need of sending anywhere , array is empty'
+        #ob_serv.notifyObservers(array, "xo-message3", 'initlocalize');
 
-        if array.length:
-            iter = array.enumerate()
-            result = iter.getNext()
-            result = result.QueryInterface(components.interfaces.nsISupportsString)
-            print result.toString()
+        #if array.length:
+        #    iter = array.enumerate()
+        #    result = iter.getNext()
+        #    result = result.QueryInterface(components.interfaces.nsISupportsString)
+        #    print result.toString()
         
     
 class Observer():
-    _com_interfaces_ = components.interfaces.nsIObserver
+    #_com_interfaces_ = components.interfaces.nsIObserver
     def __init__(self,control_sending_text):
 
         print 'just initiating'
@@ -161,15 +164,15 @@ class Observer():
         
             
         if topic=="xo-message2":   #it is for the execute command type'
-            service = service.QueryInterface(components.interfaces.nsIMutableArray)
+            #service = service.QueryInterface(components.interfaces.nsIMutableArray)
             if service.length:
                 iter = service.enumerate()
                 result = iter.getNext()
-                result = result.QueryInterface(components.interfaces.nsISupportsString)
+                #result = result.QueryInterface(components.interfaces.nsISupportsString)
                 self.content_observe=result.toString()
                 print 'the content in observer of xocom is ', self.content_observe
                 saveundostring=iter.getNext()
-                saveundostring=saveundostring.QueryInterface(components.interfaces.nsISupportsString)
+                #saveundostring=saveundostring.QueryInterface(components.interfaces.nsISupportsString)
                 saveundostring=saveundostring.toString()
                 sendingArray=['execute',self.content_observe,saveundostring]
                 self.control_sending_text(array=sendingArray,str='execute')

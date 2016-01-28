@@ -5,7 +5,7 @@
 # File Author - Mahesh Chand Sharma
 
 
-from sugar.activity import activity
+from sugar3.activity import activity
 from compound import integer, hexa
 global err_value
 err_value = ['']*(0x2A +1)

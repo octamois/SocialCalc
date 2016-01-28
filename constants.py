@@ -1,10 +1,7 @@
 import os
-import gtk
 from gettext import gettext as _
 
-import sugar.graphics.style
-from sugar.activity import activity
-from sugar import profile
+from sugar3.activity import activity
 
 from instance import Instance
 

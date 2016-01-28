@@ -1,19 +1,25 @@
-from sugar.activity import activity
-from sugar import env
 import os
-import gtk
-import gobject
-import hulahop
-hulahop.startup(os.path.join(env.get_profile_path(), 'gecko'))
 from XOCom import XOCom
 import sys
 import logging
 import telepathy
+
+from gi.repository import Gtk
+from gi.repository import GObject
+from gi.repository import WebKit
+
 from dbus.service import method, signal
 from dbus.gobject_service import ExportedGObject
-from sugar.presence import presenceservice
-from sugar.presence.tubeconn import TubeConnection
 
+from sugar3.activity import activity
+from sugar3 import env
+from sugar3.presence import presenceservice
+from sugar3.presence.tubeconn import TubeConnection
+from sugar3.graphics.toolbarbox import ToolbarBox
+from sugar3.activity.widgets import ActivityButton
+from sugar3.activity.widgets import TitleEntry
+from sugar3.activity.widgets import ShareButton
+from sugar3.activity.widgets import StopButton
 
 import intero
 
@@ -35,13 +41,38 @@ class SocialCalcActivity (activity.Activity):
         # This uses web/index.html as the default page to load
         self.xocom = XOCom(self.control_sending_text)                   #REMEMBER THAT I HAVE STILL TO SEND THE ARGUMENT IN THE XOCOM CLASS
 
-        toolbox = activity.ActivityToolbox(self)
-        self.set_toolbox(toolbox)
+        toolbox = ToolbarBox()
+
+        activity_button = ActivityButton(self)
+        toolbox.toolbar.insert(activity_button, 0)
+        activity_button.show()
+
+        title_entry = TitleEntry(self)
+        toolbox.toolbar.insert(title_entry, -1)
+        title_entry.show()
+        
+        separator = Gtk.SeparatorToolItem()
+        separator.props.draw = False
+        separator.set_expand(True)
+        toolbox.toolbar.insert(separator, -1)
+        separator.show()
+
+        stop_button = ShareButton(self)
+        toolbox.toolbar.insert(stop_button, -1)
+        stop_button.show()
+        self.set_toolbar_box(toolbox)
+        toolbox.show()
+
+        stop_button = StopButton(self)
+        toolbox.toolbar.insert(stop_button, -1)
+        stop_button.show()
+
+        self.set_toolbar_box(toolbox)
         toolbox.show()
         ##self.xocom.send_to_browser_localize(['initlocalize'])
 
         self.set_canvas( self.xocom.create_webview() )
-        
+
         self.hellotube = None  # Shared session    #REQUIRED
         self.initiating = False
         
@@ -58,7 +89,7 @@ class SocialCalcActivity (activity.Activity):
 
         #calling to initialize strings in localization
         #should wait for init complete from browser
-        gobject.timeout_add(4000, self.xocom.send_to_browser_localize,['initlocalize'])
+        GObject.timeout_add(4000, self.xocom.send_to_browser_localize,['initlocalize'])
 
 
     def _shared_cb(self, activity):
@@ -223,7 +254,7 @@ class SocialCalcActivity (activity.Activity):
         # We must delay this to give the browser time to start up
         # It would be better if this send_to_browser was instead triggered
         # once the browser had finished loading.
-        gobject.timeout_add(5000, send_delayed_read)
+        GObject.timeout_add(5000, send_delayed_read)
 
         
     def write_shared(self):
