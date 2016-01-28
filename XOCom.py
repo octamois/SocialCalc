@@ -75,7 +75,7 @@ class XOCom:
     # and return any value received from the javascript
     def send_to_browser(self, command, parameter=None):
         if((command == "read") and (parameter is not None)):
-            self.web_view.load_uri("javascript:XO.observer.setSheet('"+parameter.replace('\\n','DECNEWLINE').replace('\n','NEWLINE').replace("\\","B_SLASH").replace("'","\\'")+"');void(0);")
+            self.web_view.execute_script("XO.observer.setSheet('"+parameter.replace('\\n','DECNEWLINE').replace('\n','NEWLINE').replace("\\","B_SLASH").replace("'","\\'")+"');")
             return
 
         # Set up an array for parameters and return values for the XPCom call
@@ -125,7 +125,7 @@ class XOCom:
         #self.ajaxServer.closing = 1
         print 'sending to javascript part to localize\n'
         #array = components.classes["@mozilla.org/array;1"].createInstance(components.interfaces.nsIMutableArray)
-        localstr = "javascript:XO.lang=["
+        localstr = "XO.lang=["
         for i,j in localized_strings.iteritems():
             localstr = localstr+"'"+i.replace("'","\\'")+"','"+j.replace("'","\\'")+"',"
             #str1 = components.classes["@mozilla.org/supports-string;1"].createInstance(components.interfaces.nsISupportsString)
@@ -134,8 +134,8 @@ class XOCom:
             #str2 = components.classes["@mozilla.org/supports-string;1"].createInstance(components.interfaces.nsISupportsString)
             #str2.data=j
             #array.appendElement(str2, False)
-        localstr = localstr+"'xv'];XO.observe();void(0);"
-        self.web_view.load_uri(localstr)
+        localstr = localstr+"'xv'];XO.observe();"
+        self.web_view.execute_script(localstr)
         return
 
         #observerService = components.classes["@mozilla.org/observer-service;1"]
