@@ -3455,7 +3455,6 @@ var XO = window.XO = {
         try {
           // We need access to use the XPCom functions below
           netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
-          req_obj = req_obj.QueryInterface(Components.interfaces.nsIMutableArray);
           if (req_obj.length){XO.errorMessage=XO.errorMessage+'..........the length of req_obj is 0';}
 	SocialCalc.Constants.s_MainHelpText=SocialCalc.Constants.s_MainHelpText+'got into the observer fn'
           
@@ -3473,24 +3472,18 @@ var XO = window.XO = {
          {
           // Unwrap the XPCom objects to get at the data passed to us
           
-          var command_arg = undefined
-          if (req_obj.length) {
-              var iter = req_obj.enumerate();
-              xp_arg = iter.getNext();
-              xp_arg = xp_arg.QueryInterface(Components.interfaces.nsISupportsString);
-              command_arg = xp_arg.toString();
-          }
+          var command_arg = req_obj[0];
          
 
           // Execute the registered callback method
           return_value = XO.callbacks[command](command_arg) || '';
           
           // Wrap the return value back into the XPCom object
-          var result = Components.classes["@mozilla.org/supports-string;1"].createInstance(
+          /*var result = Components.classes["@mozilla.org/supports-string;1"].createInstance(
                 Components.interfaces.nsISupportsString);
           result.data = return_value;
           req_obj.clear();
-          req_obj.appendElement(result, false);
+          req_obj.appendElement(result, false);*/
           XO.set_status("(" + now + ") Handled " + command + ": (" + return_value + ")");
         }
         }
@@ -3557,10 +3550,10 @@ var XO = window.XO = {
       
           
                      // Wrap the return value back into the XPCom object
-                     var result = Components.classes["@mozilla.org/supports-string;1"].createInstance(Components.interfaces.nsISupportsString)
+                     /*var result = Components.classes["@mozilla.org/supports-string;1"].createInstance(Components.interfaces.nsISupportsString)
                      result.data = return_value
                      req_obj.clear()
-                     req_obj.appendElement(result, false)
+                     req_obj.appendElement(result, false)*/
 					 
 		  },
 
@@ -3577,19 +3570,3 @@ var XO = window.XO = {
  */
  
 XO.register('check',function(){XO.flagShared=true;})  //changed the value of the shared flag
-
-//SocialCalc.Constants.s_MainHelpText=SocialCalc.Constants.s_MainHelpText+'I am here'
-try {
-  netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
-  var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
-  observerService.addObserver(XO.observer, 'xo-message', false);
-  observerService.addObserver(XO.localize_observer, 'xo-message3', false);
-  //SocialCalc.Constants.s_MainHelpText='I am here'
-}
-catch(err) {    //NOTE: This part should be removed from here as there is no element named as xo-status, it has been taken from the OnePageWiki portion
-    // Wait a bit to show this error, so the page has time to load up.
-	//SocialCalc.Constants.s_MainHelpText=SocialCalc.Constants.s_MainHelpText+'\nerror lies while setting observer service on line 3563 of xocom.js'+err
-    setTimeout( function() {
-        jQuery('#xo-status', 'JS Error: ' + err);
-    }, 1000)
-}

@@ -13,6 +13,7 @@ class XOCom:
     # This should be improved for future apps that may not need/want full access
     cometPort = 8889
     ajaxPort = 8890
+    handler = None
 
     def __init__(self, control_sending_text,uri=None):
         self.cond = Condition()
@@ -53,18 +54,27 @@ class XOCom:
     # web/index.html relative to your activity directory.
     def create_webview(self):
         self.web_view = WebView()
+        self.web_view.connect("navigation-requested", self.on_navigation_requested)
         ##self.uri = 'file://' + get_bundle_path() + '/web/index.html';
         self.web_view.load_uri(self.uri)
         self.web_view.show()
         return self.web_view
-    
+
+    def on_navigation_requested(self, view, frame, req, data=None):
+        uri = req.get_uri()
+        scheme, data = uri.split(':', 1)
+        if scheme == 'xo-message2':
+            if handler is not None:
+                data = eval(data)
+                self.handler(data, 'xo-message2', data[1])
+            return True
+        else:
+            return False
+
     def set_observer(self):
         #try:
             print 'enter: set_observer'
-            '''observerService = components.classes["@mozilla.org/observer-service;1"]
-            ob_serv = observerService.getService(components.interfaces.nsIObserverService);
-            observer=Observer(self.control_sending_text)
-            ob_serv.addObserver(observer,"xo-message2",False);'''
+            self.handler = self.control_sending_text;
             print 'exit: set_observer'
         #except:
             #print 'error is there, remove try and except thing'
@@ -94,7 +104,7 @@ class XOCom:
         #observerService = components.classes["@mozilla.org/observer-service;1"]
         #ob_serv = observerService.getService(components.interfaces.nsIObserverService)
         #ob_serv.notifyObservers(array, "xo-message", command)
-        #ob_serv.addObserver(self.control_sending_text,"xo-message2",False)
+        self.handler = self.control_sending_text;
 
         # check if the browser returned anything
         '''if array.length:
@@ -119,40 +129,18 @@ class XOCom:
             #ob_serv = observerService.getService(components.interfaces.nsIObserverService);
             #if not array.length: 
             #    print 'no need of sending anywhere , array is empty'
-            #ob_serv.notifyObservers(array, "xo-message", 'execute');
+            self.web_view.execute_script('XO.observe(' + str(command[1:3]) + ', "xo-message", "execute");');
 
     def send_to_browser_localize(self,command):
-        #self.ajaxServer.closing = 1
         print 'sending to javascript part to localize\n'
-        #array = components.classes["@mozilla.org/array;1"].createInstance(components.interfaces.nsIMutableArray)
         localstr = "XO.lang=["
         for i,j in localized_strings.iteritems():
             localstr = localstr+"'"+i.replace("'","\\'")+"','"+j.replace("'","\\'")+"',"
-            #str1 = components.classes["@mozilla.org/supports-string;1"].createInstance(components.interfaces.nsISupportsString)
-            #str1.data=i
-            #array.appendElement(str1, False)
-            #str2 = components.classes["@mozilla.org/supports-string;1"].createInstance(components.interfaces.nsISupportsString)
-            #str2.data=j
-            #array.appendElement(str2, False)
         localstr = localstr+"'xv'];XO.observe();"
         self.web_view.execute_script(localstr)
         return
-
-        #observerService = components.classes["@mozilla.org/observer-service;1"]
-        #ob_serv = observerService.getService(components.interfaces.nsIObserverService);
-        #if not array.length: 
-        #   print 'no need of sending anywhere , array is empty'
-        #ob_serv.notifyObservers(array, "xo-message3", 'initlocalize');
-
-        #if array.length:
-        #    iter = array.enumerate()
-        #    result = iter.getNext()
-        #    result = result.QueryInterface(components.interfaces.nsISupportsString)
-        #    print result.toString()
-        
     
 class Observer():
-    #_com_interfaces_ = components.interfaces.nsIObserver
     def __init__(self,control_sending_text):
 
         print 'just initiating'
