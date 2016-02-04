@@ -104,20 +104,20 @@ class SocialCalcActivity (activity.Activity):
             SERVICE, {})
         
     def _sharing_setup(self):
-        if self._shared_activity is None:
+        if self.shared_activity is None:
             self._logger.error('Failed to share or join activity')
             print 'Failed to share or join activity'
             return
 
-        self.conn = self._shared_activity.telepathy_conn
-        self.tubes_chan = self._shared_activity.telepathy_tubes_chan
-        self.text_chan = self._shared_activity.telepathy_text_chan
+        self.conn = self.shared_activity.telepathy_conn
+        self.tubes_chan = self.shared_activity.telepathy_tubes_chan
+        self.text_chan = self.shared_activity.telepathy_text_chan
 
         self.tubes_chan[telepathy.CHANNEL_TYPE_TUBES].connect_to_signal(
             'NewTube', self._new_tube_cb)
 
-        self._shared_activity.connect('buddy-joined', self._buddy_joined_cb)
-        self._shared_activity.connect('buddy-left', self._buddy_left_cb)
+        self.shared_activity.connect('buddy-joined', self._buddy_joined_cb)
+        self.shared_activity.connect('buddy-left', self._buddy_left_cb)
 
         #self.entry.set_sensitive(True)
         #self.entry.grab_focus()
