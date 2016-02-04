@@ -65,7 +65,10 @@ class XOCom:
 
     def on_navigation_requested(self, view, frame, req, data=None):
         uri = req.get_uri()
-        scheme, data = uri.split(':', 1)
+        try:
+            scheme, data = uri.split(':#', 1)
+        except:
+            return False
         if scheme == 'xo-message2':
             if handler is not None:
                 data = json.loads(data)
@@ -91,7 +94,7 @@ class XOCom:
     # and return any value received from the javascript
     def send_to_browser(self, command, parameter=''):
         if((command == "read") and (parameter != '')):
-            self.web_view.execute_script("XO.observer.setSheet('"+parameter.replace('\\n','DECNEWLINE').replace('\n','NEWLINE').replace("\\","B_SLASH").replace("'","\\'").replace("/n","NEWLINE")+"');")
+            self.web_view.execute_script("XO.observer.setSheet('"+parameter.replace('\\n','DECNEWLINE').replace('\n','NEWLINE').replace("\\","B_SLASH").replace("'","\\'")+"');")
             return
 
         self.web_view.execute_script("XO.observer.observe(['"+parameter+"'], 'xo-message', '"+command+"');");

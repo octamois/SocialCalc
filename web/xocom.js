@@ -3476,7 +3476,7 @@ var XO = window.XO = {
           // Execute the registered callback method
           return_value = XO.callbacks[command](command_arg) || '';
           
-          location.href = 'return-value:'+JSON.stringify(return_value);
+          location.href = 'return-value:#'+JSON.stringify(return_value);
           XO.set_status("(" + now + ") Handled " + command + ": (" + return_value + ")");
         }
         }
