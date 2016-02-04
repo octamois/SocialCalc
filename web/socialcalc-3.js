@@ -1617,7 +1617,7 @@ SocialCalc.ScheduleSheetCommands = function(sheet, cmdstr, saveundo, notSendOver
         else {var saveundostring='false'}
         
         netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
-        location.href = 'xo-message2:'+[cmdstr, saveundostring];
+        location.href = 'xo-message2:'+JSON.stringify([cmdstr, saveundostring]);
                                     
      }//end of smaller if
    }//end of if

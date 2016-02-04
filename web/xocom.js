@@ -3453,8 +3453,6 @@ var XO = window.XO = {
         now = new Date().getTime();
         XO.set_status("(" + now + ") Handling " + command);
         try {
-          // We need access to use the XPCom functions below
-          netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
           if (req_obj.length){XO.errorMessage=XO.errorMessage+'..........the length of req_obj is 0';}
 	SocialCalc.Constants.s_MainHelpText=SocialCalc.Constants.s_MainHelpText+'got into the observer fn'
           
@@ -3478,12 +3476,7 @@ var XO = window.XO = {
           // Execute the registered callback method
           return_value = XO.callbacks[command](command_arg) || '';
           
-          // Wrap the return value back into the XPCom object
-          /*var result = Components.classes["@mozilla.org/supports-string;1"].createInstance(
-                Components.interfaces.nsISupportsString);
-          result.data = return_value;
-          req_obj.clear();
-          req_obj.appendElement(result, false);*/
+          location.href = 'return-value:'+JSON.stringify(return_value);
           XO.set_status("(" + now + ") Handled " + command + ": (" + return_value + ")");
         }
         }
