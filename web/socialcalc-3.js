@@ -1617,15 +1617,7 @@ SocialCalc.ScheduleSheetCommands = function(sheet, cmdstr, saveundo, notSendOver
         else {var saveundostring='false'}
         
         netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
-        var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
-        array = Components.classes["@mozilla.org/array;1"].createInstance(Components.interfaces.nsIMutableArray)
-        var str = Components.classes["@mozilla.org/supports-string;1"].createInstance(Components.interfaces.nsISupportsString)
-        str.data = cmdstr
-        array.appendElement(str, false) 
-        var str2 = Components.classes["@mozilla.org/supports-string;1"].createInstance(Components.interfaces.nsISupportsString)
-        str2.data = saveundostring
-        array.appendElement(str2, false) 
-        observerService.notifyObservers(array,'xo-message2',saveundostring);  //this saveundostring is not req to be sent here, any array can be sent
+        location.href = 'xo-message2:#'+JSON.stringify([cmdstr, saveundostring]);
                                     
      }//end of smaller if
    }//end of if

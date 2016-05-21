@@ -26,9 +26,8 @@ from instance import Instance
 from threading import Thread
 import threading
 import os
-import gobject
+from gi.repository import GObject
 import time
-import gtk
 import urllib
 
 class ServerLogic:
@@ -65,7 +64,7 @@ class ServerLogic:
 			kickThroughComet = True
 
 			if (fileName =="cometor.js"):
-				gobject.idle_add(self.ca.send_to_browser_localize,['initlocalize']);
+				GObject.idle_add(self.ca.send_to_browser_localize,['initlocalize']);
 				self.proceedHeaders.append( ("Content-type", "text/javascript") )
 				self.proceedTxt = ""
 
@@ -79,18 +78,18 @@ class ServerLogic:
 				locY = params[2][1]
 				up = params[3][1]
 				rt = params[4][1]
-				gobject.idle_add(self.ca.showMedia, id, locX, locY, up=='true', rt=='true')
+				GObject.idle_add(self.ca.showMedia, id, locX, locY, up=='true', rt=='true')
 				self.proceedHeaders.append( ("Content-type", "text/javascript") )
 
 			elif (fileName == "placeAddMedia.js"):
 				lat = params[0][1]
 				lng = params[1][1]
-				gobject.idle_add(self.ca.placeAddMedia, lat, lng)
+				GObject.idle_add(self.ca.placeAddMedia, lat, lng)
 				self.proceedHeaders.append( ("Content-type", "text/javascript") )
 				kickThroughComet = False
 
 			elif (fileName == "hideMedia.js"):
-				gobject.idle_add(self.ca.hideMedia)
+				GObject.idle_add(self.ca.hideMedia)
 
 			elif (fileName == "getImage.js"):
 				localfile = open(os.path.join(Instance.instancePath, params[0][1]), 'r')
@@ -108,7 +107,7 @@ class ServerLogic:
 				zoom = params[2][1]
 				x = params[3][1]
 				y = params[4][1]
-				gobject.idle_add(self.ca.updateMapMetaData,lat,lng,zoom,x,y)
+				GObject.idle_add(self.ca.updateMapMetaData,lat,lng,zoom,x,y)
 
 			elif (fileName == "addSavedMap.js"):
 				# allow internet to send an array of SavedMaps back to map.py
@@ -116,7 +115,7 @@ class ServerLogic:
 				longitudes = params[1][1]
 				zooms = params[2][1]
 				notes = params[3][1]
-				gobject.idle_add(self.ca.addSavedMap,latitudes,longitudes,zooms,urllib.unquote(notes),True)
+				GObject.idle_add(self.ca.addSavedMap,latitudes,longitudes,zooms,urllib.unquote(notes),True)
 
 			elif (fileName == "addInfoMarker.js"):
 				lat = params[0][1]
@@ -125,17 +124,17 @@ class ServerLogic:
 				icon = params[3][1]
 				if(params[4][1] == "True"):
 					isNew = True
-					gobject.idle_add(self.ca.cometLogic.forceupdate)
+					GObject.idle_add(self.ca.cometLogic.forceupdate)
 				else:
 					isNew = False
-				gobject.idle_add(self.ca.addInfoMarker,lat,lng,info,icon,isNew)
+				GObject.idle_add(self.ca.addInfoMarker,lat,lng,info,icon,isNew)
 			
 			elif (fileName == "addLine.js"):
 				id = params[0][1]
 				color = params[1][1]
 				thickness = params[2][1]
 				pts = params[3][1]  # send pts separated with | instead of ,
-				gobject.idle_add(self.ca.addLine,id,color,thickness,pts,1)
+				GObject.idle_add(self.ca.addLine,id,color,thickness,pts,1)
 			
 			elif (fileName == "promptSearch.js"):
 				address = params[0][1]

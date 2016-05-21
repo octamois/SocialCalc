@@ -3,16 +3,20 @@ from threading import *
 from logic import ServerLogic
 from server import Server
 from instance import Instance
-from sugar.activity.activity import get_bundle_path
-from hulahop.webview import WebView
-from xpcom import components
+from sugar3.activity.activity import get_bundle_path
+from gi.repository.WebKit import WebView
+#from xpcom import components
 from localized_strings_file import localized_strings
+from gi.repository import Gtk
+import json
 
 class XOCom:
     # Constructor gives full XPCom access by default
     # This should be improved for future apps that may not need/want full access
     cometPort = 8889
     ajaxPort = 8890
+    handler = None
+    return_value = None
 
     def __init__(self, control_sending_text,uri=None):
         self.cond = Condition()
@@ -38,32 +42,48 @@ class XOCom:
     # Note: Not all of these preferences may be required - requires further
     #       investigation
     def give_full_xpcom_access(self):
-        pref_class = components.classes["@mozilla.org/preferences-service;1"]
+        pass
+        '''pref_class = components.classes["@mozilla.org/preferences-service;1"]
         prefs = pref_class.getService(components.interfaces.nsIPrefService)
         prefs.getBranch('signed.applets.').setBoolPref('codebase_principal_support',
                 True);
         prefs.getBranch('capability.principal.').setCharPref(
                         'socialcalc.granted', 'UniversalXPConnect')
         prefs.getBranch('capability.principal.').setCharPref(
-                        'socialcalc.id', self.uri)
+                        'socialcalc.id', self.uri)'''
 
     # Wrapper method to create a new webview embedded browser component
     # Uses hulahop's WebView.  Assumes that you'll want to serve
     # web/index.html relative to your activity directory.
     def create_webview(self):
         self.web_view = WebView()
+        self.web_view.connect("navigation-requested", self.on_navigation_requested)
         ##self.uri = 'file://' + get_bundle_path() + '/web/index.html';
         self.web_view.load_uri(self.uri)
         self.web_view.show()
         return self.web_view
-    
+
+    def on_navigation_requested(self, view, frame, req, data=None):
+        uri = req.get_uri()
+        try:
+            scheme, data = uri.split(':#', 1)
+        except:
+            return False
+        if scheme == 'xo-message2':
+            if handler is not None:
+                data = json.loads(data)
+                self.handler(data, 'xo-message2', data[1])
+            return True
+        elif scheme == 'return-value':
+            self.return_value = json.loads(data)
+            return True
+        else:
+            return False
+
     def set_observer(self):
         #try:
             print 'enter: set_observer'
-            observerService = components.classes["@mozilla.org/observer-service;1"]
-            ob_serv = observerService.getService(components.interfaces.nsIObserverService);
-            observer=Observer(self.control_sending_text)
-            ob_serv.addObserver(observer,"xo-message2",False);
+            self.handler = self.control_sending_text;
             print 'exit: set_observer'
         #except:
             #print 'error is there, remove try and except thing'
@@ -72,84 +92,38 @@ class XOCom:
     # Use XPCom to execute a javascript callback registered with XO.js
     # The command will execute a javascript method registered with the same name,
     # and return any value received from the javascript
-    def send_to_browser(self, command, parameter=None):
-        if((command == "read") and (parameter is not None)):
-            self.web_view.load_uri("javascript:XO.observer.setSheet('"+parameter.replace('\\n','DECNEWLINE').replace('\n','NEWLINE').replace("\\","B_SLASH").replace("'","\\'")+"');void(0);")
+    def send_to_browser(self, command, parameter=''):
+        if((command == "read") and (parameter != '')):
+            self.web_view.execute_script("XO.observer.setSheet('"+parameter.replace('\\n','DECNEWLINE').replace('\n','NEWLINE').replace("\\","B_SLASH").replace("'","\\'")+"');")
             return
 
-        # Set up an array for parameters and return values for the XPCom call
-        array = components.classes["@mozilla.org/array;1"].createInstance(
-                components.interfaces.nsIMutableArray)
-     
-        # Optionally pass data to the javascript
-        if parameter: 
-            str = components.classes["@mozilla.org/supports-string;1"].createInstance(
-                        components.interfaces.nsISupportsString)
-            str.data = parameter
-            array.appendElement(str, False)
-
-        # Use XPCom to send an event to a javascript observer (web/xo.js)
-        observerService = components.classes["@mozilla.org/observer-service;1"]
-        ob_serv = observerService.getService(components.interfaces.nsIObserverService)
-        ob_serv.notifyObservers(array, "xo-message", command)
-        #ob_serv.addObserver(self.control_sending_text,"xo-message2",False)
+        self.web_view.execute_script("XO.observer.observe(['"+parameter+"'], 'xo-message', '"+command+"');");
+        self.handler = self.control_sending_text;
 
         # check if the browser returned anything
-        if array.length:
-            iter = array.enumerate()
-            result = iter.getNext()
-            result = result.QueryInterface(components.interfaces.nsISupportsString)
-            return result.toString()
+        while self.return_value == None:
+            while Gtk.events_pending():
+                Gtk.main_iteration()
+        if self.return_value != '':
+            value = self.return_value
+            self.return_value = None
+            return value
         return None
     
     def send_to_browser_shared(self,command):
         if command[0]=='execute':
-            array = components.classes["@mozilla.org/array;1"].createInstance(components.interfaces.nsIMutableArray)
-            str = components.classes["@mozilla.org/supports-string;1"].createInstance(components.interfaces.nsISupportsString)
-            str.data = command[1]
-            array.appendElement(str, False)
-            str2 = components.classes["@mozilla.org/supports-string;1"].createInstance(components.interfaces.nsISupportsString)
-            str2.data = command[2]
-            array.appendElement(str2, False)
-            
-            observerService = components.classes["@mozilla.org/observer-service;1"]
-            ob_serv = observerService.getService(components.interfaces.nsIObserverService);
-            if not array.length: 
-                print 'no need of sending anywhere , array is empty'
-            ob_serv.notifyObservers(array, "xo-message", 'execute');
+            self.web_view.execute_script('XO.observe(' + str(command[1:3]) + ', "xo-message", "execute");');
 
     def send_to_browser_localize(self,command):
-        #self.ajaxServer.closing = 1
         print 'sending to javascript part to localize\n'
-        #array = components.classes["@mozilla.org/array;1"].createInstance(components.interfaces.nsIMutableArray)
-        localstr = "javascript:XO.lang=["
+        localstr = "XO.lang=["
         for i,j in localized_strings.iteritems():
             localstr = localstr+"'"+i.replace("'","\\'")+"','"+j.replace("'","\\'")+"',"
-            #str1 = components.classes["@mozilla.org/supports-string;1"].createInstance(components.interfaces.nsISupportsString)
-            #str1.data=i
-            #array.appendElement(str1, False)
-            #str2 = components.classes["@mozilla.org/supports-string;1"].createInstance(components.interfaces.nsISupportsString)
-            #str2.data=j
-            #array.appendElement(str2, False)
-        localstr = localstr+"'xv'];XO.observe();void(0);"
-        self.web_view.load_uri(localstr)
+        localstr = localstr+"'xv'];XO.observe();"
+        self.web_view.execute_script(localstr)
         return
-
-        observerService = components.classes["@mozilla.org/observer-service;1"]
-        ob_serv = observerService.getService(components.interfaces.nsIObserverService);
-        if not array.length: 
-           print 'no need of sending anywhere , array is empty'
-        ob_serv.notifyObservers(array, "xo-message3", 'initlocalize');
-
-        if array.length:
-            iter = array.enumerate()
-            result = iter.getNext()
-            result = result.QueryInterface(components.interfaces.nsISupportsString)
-            print result.toString()
-        
     
 class Observer():
-    _com_interfaces_ = components.interfaces.nsIObserver
     def __init__(self,control_sending_text):
 
         print 'just initiating'
@@ -161,15 +135,15 @@ class Observer():
         
             
         if topic=="xo-message2":   #it is for the execute command type'
-            service = service.QueryInterface(components.interfaces.nsIMutableArray)
+            #service = service.QueryInterface(components.interfaces.nsIMutableArray)
             if service.length:
                 iter = service.enumerate()
                 result = iter.getNext()
-                result = result.QueryInterface(components.interfaces.nsISupportsString)
+                #result = result.QueryInterface(components.interfaces.nsISupportsString)
                 self.content_observe=result.toString()
                 print 'the content in observer of xocom is ', self.content_observe
                 saveundostring=iter.getNext()
-                saveundostring=saveundostring.QueryInterface(components.interfaces.nsISupportsString)
+                #saveundostring=saveundostring.QueryInterface(components.interfaces.nsISupportsString)
                 saveundostring=saveundostring.toString()
                 sendingArray=['execute',self.content_observe,saveundostring]
                 self.control_sending_text(array=sendingArray,str='execute')
