@@ -4,6 +4,8 @@ from logic import ServerLogic
 from server import Server
 from instance import Instance
 from sugar3.activity.activity import get_bundle_path
+import gi
+gi.require_version('WebKit', '3.0')
 from gi.repository.WebKit import WebView
 #from xpcom import components
 from localized_strings_file import localized_strings
