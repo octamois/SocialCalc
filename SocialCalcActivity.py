@@ -94,19 +94,19 @@ class SocialCalcActivity (activity.Activity):
 
     def _shared_cb(self, activity):
         self._logger.debug('My activity was shared')
-        print 'my activity is shared'
+        print('my activity is shared')
         self.initiating = True
         self._sharing_setup()
 
         self._logger.debug('This is my activity: making a tube...')
-        print 'This is my activity: making a tube...'
+        print('This is my activity: making a tube...')
         id = self.tubes_chan[telepathy.CHANNEL_TYPE_TUBES].OfferDBusTube(
             SERVICE, {})
         
     def _sharing_setup(self):
         if self.shared_activity is None:
             self._logger.error('Failed to share or join activity')
-            print 'Failed to share or join activity'
+            print('Failed to share or join activity')
             return
 
         self.conn = self.shared_activity.telepathy_conn
@@ -141,12 +141,12 @@ class SocialCalcActivity (activity.Activity):
             return
 
         self._logger.debug('Joined an existing shared activity')
-        print 'Joined an existing shared activity'
+        print('Joined an existing shared activity')
         self.initiating = False
         self._sharing_setup()
 
         self._logger.debug('This is not my activity: waiting for a tube...')
-        print 'This is not my activity: waiting for a tube...'
+        print('This is not my activity: waiting for a tube...')
         self.tubes_chan[telepathy.CHANNEL_TYPE_TUBES].ListTubes(
             reply_handler=self._list_tubes_reply_cb,
             error_handler=self._list_tubes_error_cb)
@@ -173,7 +173,7 @@ class SocialCalcActivity (activity.Activity):
         with the Buddy...
         """
         self._logger.debug('Buddy %s joined', buddy.props.nick)
-        print 'Buddy %s joined' % (buddy.props.nick)
+        print('Buddy %s joined' % (buddy.props.nick))
 
     def _buddy_left_cb (self, activity, buddy):
         """Called when a buddy leaves the shared activity.
@@ -183,7 +183,7 @@ class SocialCalcActivity (activity.Activity):
         with the Buddy...
         """
         self._logger.debug('Buddy %s left', buddy.props.nick)
-        print 'Buddy %s left' % (buddy.props.nick)
+        print('Buddy %s left' % (buddy.props.nick))
 
     def _get_buddy(self, cs_handle):
         """Get a Buddy from a channel specific handle."""
@@ -230,7 +230,7 @@ class SocialCalcActivity (activity.Activity):
     def read_file(self, filename):
         #print '\nin read file\n'
         file_extension_value=intero.check_file_extension(filename)
-        print ' \nthe extension is ',file_extension_value[1],' and the value is ',file_extension_value[0],'\n'
+        print(' \nthe extension is ',file_extension_value[1],' and the value is ',file_extension_value[0],'\n')
         
         if  file_extension_value[0] and (self.metadata['mime_type']!='application/scalc') :
             fh = open(filename, 'rb')
@@ -269,12 +269,12 @@ class SocialCalcActivity (activity.Activity):
         
     def control_sending_text(self,array='', topic='', str=''):
         if not str=='':         #just to check that the string is received from the js part
-            print 'reached control_sending_text from js part   ',str
+            print('reached control_sending_text from js part   ',str)
         #content=self.write_shared()
         #content=array
         
         if str=='execute':
-            print 'in execute in control_sending_text'
+            print('in execute in control_sending_text')
             global_content=array[1]
             self.content=global_content
             self.hellotube.SendText(array)
@@ -307,21 +307,21 @@ class TextSync(ExportedGObject):
             if buddy is not None:
                 self._logger.debug('Tube: Handle %u (Buddy %s) was added',
                                    handle, buddy.props.nick)
-                print 'Buddy %s was added' % (buddy.props.nick)
+                print('Buddy %s was added' % (buddy.props.nick))
         for handle in removed:
             buddy = self._get_buddy(handle)
             if buddy is not None:
                 self._logger.debug('Buddy %s was removed' % buddy.props.nick)
-                print 'Buddy %s was added' % (buddy.props.nick)
+                print('Buddy %s was added' % (buddy.props.nick))
         if not self.entered:
             if self.is_initiator:
                 self._logger.debug("I'm initiating the tube, will "
                     "watch for hellos.")
-                print 'I am initiating the tube'
+                print('I am initiating the tube')
                 self.add_hello_handler()
             else:
                 self._logger.debug('Hello, everyone! What did I miss?')
-                print 'what did I miss'
+                print('what did I miss')
                 self.Hello()
         self.entered = True
         
@@ -329,7 +329,7 @@ class TextSync(ExportedGObject):
     def Hello(self):
         """Say Hello to whoever else is in the tube."""
         self._logger.debug('I said Hello.')
-        print 'I said Hello.'
+        print('I said Hello.')
         
     @method(dbus_interface=IFACE, in_signature='s', out_signature='')
     def World(self, text):
@@ -337,7 +337,7 @@ class TextSync(ExportedGObject):
         if not self.text:
             self._logger.debug('Somebody called World and sent me %s',
                                text)
-            print 'Somebody called World and sent me %s' %(text)
+            print('Somebody called World and sent me %s' %(text))
             
             self.text = text
             self.read_shared(content=text)
@@ -345,21 +345,21 @@ class TextSync(ExportedGObject):
             self.add_hello_handler()
         else:
             self._logger.debug("I've already been welcomed, doing nothing")
-            print 'I have already been welcomed'
+            print('I have already been welcomed')
         
     def add_hello_handler(self):
         self._logger.debug('Adding hello handler.')
-        print 'in add_hello_handler'
+        print('in add_hello_handler')
         self.tube.add_signal_receiver(self.hello_cb, 'Hello', IFACE,
             path=PATH, sender_keyword='sender')
         self.tube.add_signal_receiver(self.sendtext_cb, 'SendText', IFACE,
             path=PATH, sender_keyword='sender')
         global flag_toActivateSetInterval
         if flag_toActivateSetInterval:   #NOTE THAT THIS PART NEEDS TO BE UNCOMMENTED TO ACTUALLY IMPLEMENT WHAT WE WANT TO IN EXECUTECOMMAND
-            print 'start: sending check'
+            print('start: sending check')
             self.xocom.send_to_browser('check')
             #flag_toActivateSetInterval=False
-            print 'exit: sending check'
+            print('exit: sending check')
 
         
 
@@ -369,9 +369,9 @@ class TextSync(ExportedGObject):
             # sender is my bus name, so ignore my own signal
             return
         self._logger.debug('Newcomer %s has joined', sender)
-        print 'Newcomer %s has joined' % (sender)
+        print('Newcomer %s has joined' % (sender))
         self._logger.debug('Welcoming newcomer and sending them the game state')
-        print 'Welcoming newcomer and sending them the game state'
+        print('Welcoming newcomer and sending them the game state')
         content=self.write_shared()
         self.tube.get_object(sender, PATH).World(content,
                                                  dbus_interface=IFACE)
@@ -391,7 +391,7 @@ class TextSync(ExportedGObject):
         
         if text[0]=='execute':
             self._logger.debug('%s sent text %s', sender, text[1])
-            print 'received text', text[1]
+            print('received text', text[1])
             self.text = text[1]
             self.xocom.send_to_browser_shared(text)            
             
@@ -402,10 +402,10 @@ class TextSync(ExportedGObject):
         #self.text = text
         #self._logger.debug('Sent text: %s', text)
         if text[0]=='whole':
-            print 'in whole: sending sendtext signal',text[1]
+            print('in whole: sending sendtext signal',text[1])
         
         elif text[0]=='execute':
-            print 'in execute: sending sendtext signal',text[1]
+            print('in execute: sending sendtext signal',text[1])
         
         #print 'sending sendtext signal'
         #self._alert('SendText', 'Sent %s' % text)

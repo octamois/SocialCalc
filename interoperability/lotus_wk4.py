@@ -278,7 +278,7 @@ def main():
     #f=open('check5.wk4','rb')
     #a=f.read()
     s=wk4_to_scalc(a)
-    print s
+    print(s)
     #f.close()
     #print "no is", no
 

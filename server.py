@@ -19,21 +19,21 @@
 #THE SOFTWARE.
 
 
-import urlparse
-import urllib
+import urllib.parse
+import urllib.request, urllib.parse, urllib.error
 import posixpath
-import SimpleHTTPServer
-import BaseHTTPServer
+import http.server
+import http.server
 
 
-class Server(BaseHTTPServer.HTTPServer):
+class Server(http.server.HTTPServer):
 	def __init__(self, server_address, logic):
-		BaseHTTPServer.HTTPServer.__init__(self, server_address, RegHandler)
+		http.server.HTTPServer.__init__(self, server_address, RegHandler)
 		self.logic = logic
 
 
 #RegHandler extends SimpleHTTPServer.py (in python 2.4)
-class RegHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
+class RegHandler(http.server.SimpleHTTPRequestHandler):
 	def do_POST( self ):
 		self.translate_path()
 
@@ -48,12 +48,12 @@ class RegHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
 	def translate_path(self):
 		#todo: compare with send_head in parent
-		urlp = urlparse.urlparse(self.path)
+		urlp = urllib.parse.urlparse(self.path)
 
 		urls = urlp[2]
-		urls = posixpath.normpath(urllib.unquote(urls))
+		urls = posixpath.normpath(urllib.parse.unquote(urls))
 		urlPath = urls.split('/')
-		urlPath = filter(None, urlPath)
+		urlPath = [_f for _f in urlPath if _f]
 
 		params = urlp[4]
 		parama = []

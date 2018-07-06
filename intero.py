@@ -20,7 +20,7 @@ def convert(byte_string,file_extension):
     elif file_extension == '.xls':
         result=workbook.bin2data(byte_string)
         if result=='file not in correct format':    ## To check that file is in the correct readable format
-            print 'BEWARE : file not in correct format, it is not the correct xls format, check the file\n'
+            print('BEWARE : file not in correct format, it is not the correct xls format, check the file\n')
             result=''
 
     

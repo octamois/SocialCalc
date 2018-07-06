@@ -84,9 +84,9 @@ class XOCom:
 
     def set_observer(self):
         #try:
-            print 'enter: set_observer'
+            print('enter: set_observer')
             self.handler = self.control_sending_text;
-            print 'exit: set_observer'
+            print('exit: set_observer')
         #except:
             #print 'error is there, remove try and except thing'
         
@@ -117,9 +117,9 @@ class XOCom:
             self.web_view.execute_script('XO.observe(' + str(command[1:3]) + ', "xo-message", "execute");');
 
     def send_to_browser_localize(self,command):
-        print 'sending to javascript part to localize\n'
+        print('sending to javascript part to localize\n')
         localstr = "XO.lang=["
-        for i,j in localized_strings.iteritems():
+        for i,j in localized_strings.items():
             localstr = localstr+"'"+i.replace("'","\\'")+"','"+j.replace("'","\\'")+"',"
         localstr = localstr+"'xv'];XO.observe();"
         self.web_view.execute_script(localstr)
@@ -128,11 +128,11 @@ class XOCom:
 class Observer():
     def __init__(self,control_sending_text):
 
-        print 'just initiating'
+        print('just initiating')
         self.control_sending_text=control_sending_text
         self.content_observe=''
     def observe(self, service, topic, extra):
-        print 'getting the signal in the python part'
+        print('getting the signal in the python part')
         
         
             
@@ -143,7 +143,7 @@ class Observer():
                 result = iter.getNext()
                 #result = result.QueryInterface(components.interfaces.nsISupportsString)
                 self.content_observe=result.toString()
-                print 'the content in observer of xocom is ', self.content_observe
+                print('the content in observer of xocom is ', self.content_observe)
                 saveundostring=iter.getNext()
                 #saveundostring=saveundostring.QueryInterface(components.interfaces.nsISupportsString)
                 saveundostring=saveundostring.toString()

@@ -28,7 +28,7 @@ import threading
 import os
 from gi.repository import GObject
 import time
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 class ServerLogic:
 	def __init__(self, ca):
@@ -115,7 +115,7 @@ class ServerLogic:
 				longitudes = params[1][1]
 				zooms = params[2][1]
 				notes = params[3][1]
-				GObject.idle_add(self.ca.addSavedMap,latitudes,longitudes,zooms,urllib.unquote(notes),True)
+				GObject.idle_add(self.ca.addSavedMap,latitudes,longitudes,zooms,urllib.parse.unquote(notes),True)
 
 			elif (fileName == "addInfoMarker.js"):
 				lat = params[0][1]
@@ -157,8 +157,8 @@ class ServerLogic:
 		return r
 
 	def handleAddressUpdate( self, address ):
-		findsrc="http://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=" + urllib.quote(address)
-		findAddress = urllib.urlopen(findsrc).read()
+		findsrc="http://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=" + urllib.parse.quote(address)
+		findAddress = urllib.request.urlopen(findsrc).read()
 
 		longname=findAddress[findAddress.find('long_name')+13:len(findAddress)]
 		longname=longname[0:longname.find('"')]
@@ -236,7 +236,7 @@ class ServerLogic:
 		lls=llc[0]-0.55618*0.75*(2**(9-llz))
 		llw=llc[1]-0.98877*0.75*(2**(9-llz))
 		findsrc="http://mapmeld.appspot.com/olpcMAP/kml?llregion="+str(lln)+","+str(lle)+","+str(lls)+","+str(llw)
-		self.ca.readKML(urllib.urlopen(findsrc))
+		self.ca.readKML(urllib.request.urlopen(findsrc))
 
 	def handleZoomUpdate( self, dir ):
 		self.proceedHeaders.append( ("Content-type", "text/javascript") )
@@ -294,7 +294,7 @@ class ServerLogic:
 	def handleSavedMap( self, lat, lng, zoom, info ):
 		self.proceedHeaders.append( ("Content-type", "text/javascript") )
 		if(info.find("Describe the map") != 0):
-			self.proceedTxt = "setMap2(" + lat + "," + lng + "," + zoom + ",'" + urllib.quote(info) + "');"
+			self.proceedTxt = "setMap2(" + lat + "," + lng + "," + zoom + ",'" + urllib.parse.quote(info) + "');"
 		else:
 			self.proceedTxt = "setMap2(" + lat + "," + lng + "," + zoom + ",'');"			
 		self.ca.ajaxServer.stop()

@@ -6,7 +6,7 @@
 
 
 from sugar3.activity import activity
-from compound import integer, hexa
+from .compound import integer, hexa
 global err_value
 err_value = ['']*(0x2A +1)
 err_value[0x00] = '#NULL!'

@@ -4,9 +4,9 @@
 # For posting a feature request/bug, please use http://testtrack.seeta.in. 
 # File Author - Mahesh Chand Sharma
 
-from convert_to_scalcstring import workbook_data_to_scalc_string
-from compound import return_wbk, integer, hexa
-from function import read_formula
+from .convert_to_scalcstring import workbook_data_to_scalc_string
+from .compound import return_wbk, integer, hexa
+from .function import read_formula
 global err_value
 
 err_value = ['']*(0x2A +1)
